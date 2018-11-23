@@ -24,3 +24,23 @@ CREATE OR REPLACE FUNCTION CALCULAR_CAJAS_NECESARIAS(num_Item IN NUMBER,cajas_gr
    end if;      
       RETURN(despachar); 
     END;
+
+
+
+
+CREATE OR REPLACE PROCEDURE PROCESAR_PEDIDOS(
+CURSOR CURSORPEDIDOS IS 
+    select * 
+    from PEDIDOS;
+v_Return NUMBER;
+BEGIN 
+    for C in CURSORPEDIDOS loop
+        v_Return := CALCULAR_CAJAS_NECESARIAS(c.items,c.cajas_grandes,c.cajas_pequenas);
+        if v_Return != -1 then
+            update PEDIDOS
+            set cantidad_cajas = v_Return;
+            where items = c.items and cajas_grandes = c.cajas_grandes and cajas_pequenas = c.cajas_pequenas;
+        end if;
+    end loop;
+END BEGIN;
+);
